@@ -10,7 +10,9 @@
 (defn splash []
   {:status 200
    :headers {"Content-Type" "text/plain"}
-   :body (pr-str ["Hello" :from 'Heroku])})
+   :body (for [kind ["camel" "snake" "kebab"]]
+           (format "<a href=\"/%s?input=%s\">%s %s</a><br />"
+                    kind sample kind sample))})
 
 (defroutes app
   (GET "/camel" {{input :input} :params}
