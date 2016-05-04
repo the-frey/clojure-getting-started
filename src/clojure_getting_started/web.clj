@@ -6,6 +6,9 @@
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]))
 
+(defn add-shutdown-hook []
+  (.addShutdownHook (Runtime/getRuntime) (Thread. (fn [] (println "Shutting down...")))))
+
 (defn splash []
   {:status 200
    :headers {"Content-Type" "text/plain"}
@@ -18,6 +21,7 @@
        (route/not-found (slurp (io/resource "404.html")))))
 
 (defn -main [& [port]]
+  (add-shutdown-hook)
   (let [port (Integer. (or port (env :port) 5000))]
     (jetty/run-jetty (site #'app) {:port port :join? false})))
 
