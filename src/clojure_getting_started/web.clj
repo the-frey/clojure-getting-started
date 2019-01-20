@@ -4,12 +4,58 @@
             [compojure.route :as route]
             [clojure.java.io :as io]
             [ring.adapter.jetty :as jetty]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [hiccup.core :as h]
+            [clojure.data.csv :as csv])
+  (:import java.lang.Integer))
+
+(def default-file-location "./data/wordlist.csv")
+
+(defn load-wordlist-file [path-with-extension]
+  (with-open [reader (io/reader path-with-extension)]
+    (doall
+     (csv/read-csv reader))))
+
+(defn wordlist-numbered-vec [file-location]
+  (reduce (fn [acc i]
+            (assoc acc (Integer/parseInt (first i)) (second i)))
+          {}
+          (load-wordlist-file file-location)))
+
+(defn dice-roll->word [dice-roll file-location]
+  (get (wordlist-numbered-vec file-location)
+       dice-roll))
+
+(defn roll-dice []
+  (-> (rand-int 5)
+      inc))
+
+(defn roll-multiple-dice [num-dice]
+  (->> (repeatedly roll-dice)
+       (take num-dice)))
+
+(defn multiple-dice->string [dice-coll]
+  (->> dice-coll
+       (map str)
+       clojure.string/join))
+
+(defn generate-pass-phrase []
+  (let [six-sets-of-five-rolls (take 6
+                                     (repeatedly (partial roll-multiple-dice
+                                                          5)))]
+    (->> six-sets-of-five-rolls
+         (map multiple-dice->string)
+         (map #(Integer/parseInt %))
+         (map #(dice-roll->word %
+                                default-file-location)))))
 
 (defn splash []
   {:status 200
-   :headers {"Content-Type" "text/plain"}
-   :body "Hello from Heroku"})
+   :headers {"Content-Type" "text/html"}
+   :body (h/html [:div
+                  [:h1 "Your passphrase is:"]
+                  [:p (map #(str % " ")
+                           (generate-pass-phrase))]])})
 
 (defroutes app
   (GET "/" []
@@ -24,3 +70,4 @@
 ;; For interactive development:
 ;; (.stop server)
 ;; (def server (-main))
+
