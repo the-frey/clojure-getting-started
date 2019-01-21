@@ -16,14 +16,14 @@
     (doall
      (csv/read-csv reader))))
 
-(defn wordlist-numbered-vec [file-location]
+(defn wordlist-numbered-mapping [file-location]
   (reduce (fn [acc i]
             (assoc acc (Integer/parseInt (first i)) (second i)))
           {}
           (load-wordlist-file file-location)))
 
-(defn dice-roll->word [dice-roll file-location]
-  (get (wordlist-numbered-vec file-location)
+(defn dice-roll->word [dice-roll hash-map]
+  (get hash-map
        dice-roll))
 
 (defn roll-dice []
@@ -40,14 +40,15 @@
        clojure.string/join))
 
 (defn generate-pass-phrase []
-  (let [six-sets-of-five-rolls (take 6
+  (let [word-mapping (wordlist-numbered-mapping default-file-location)
+        six-sets-of-five-rolls (take 6
                                      (repeatedly (partial roll-multiple-dice
                                                           5)))]
     (->> six-sets-of-five-rolls
          (map multiple-dice->string)
          (map #(Integer/parseInt %))
          (map #(dice-roll->word %
-                                default-file-location)))))
+                                word-mapping)))))
 
 (defn splash []
   {:status 200
