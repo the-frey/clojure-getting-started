@@ -22,7 +22,7 @@
           {}
           (load-wordlist-file file-location)))
 
-(defn dice-roll->word [dice-roll hash-map]
+(defn dice-roll->word [hash-map dice-roll]
   (get hash-map
        dice-roll))
 
@@ -47,8 +47,8 @@
     (->> six-sets-of-five-rolls
          (map multiple-dice->string)
          (map #(Integer/parseInt %))
-         (map #(dice-roll->word %
-                                word-mapping)))))
+         (map #(dice-roll->word word-mapping
+                                %)))))
 
 (defn splash []
   {:status 200
