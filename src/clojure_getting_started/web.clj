@@ -39,11 +39,14 @@
        (map str)
        clojure.string/join))
 
+(defn roll-x-dice-y-times [x y]
+  (take y
+        (repeatedly (partial roll-multiple-dice
+                             x))))
+
 (defn generate-pass-phrase []
   (let [word-mapping (wordlist-numbered-mapping default-file-location)
-        six-sets-of-five-rolls (take 6
-                                     (repeatedly (partial roll-multiple-dice
-                                                          5)))]
+        six-sets-of-five-rolls (roll-x-dice-y-times 5 6)]
     (->> six-sets-of-five-rolls
          (map multiple-dice->string)
          (map #(Integer/parseInt %))
