@@ -40,9 +40,9 @@
        clojure.string/join))
 
 (defn roll-x-dice-y-times [x y]
-  (take y
-        (repeatedly (partial roll-multiple-dice
-                             x))))
+  (->> (repeatedly (partial roll-multiple-dice
+                            x))
+       (take y)))
 
 (defn generate-pass-phrase []
   (let [word-mapping (wordlist-numbered-mapping default-file-location)
