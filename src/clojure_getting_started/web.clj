@@ -27,7 +27,7 @@
        dice-roll))
 
 (defn roll-dice []
-  (-> (rand-int 5)
+  (-> (rand-int 6)
       inc))
 
 (defn roll-multiple-dice [num-dice]
@@ -74,4 +74,3 @@
 ;; For interactive development:
 ;; (.stop server)
 ;; (def server (-main))
-
